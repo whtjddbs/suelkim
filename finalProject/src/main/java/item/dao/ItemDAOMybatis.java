@@ -1,5 +1,6 @@
 package item.dao;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import item.bean.ItemDTO;
+import item.bean.Item_infoDTO;
 
 @Transactional
 @Component
@@ -40,43 +42,38 @@ public class ItemDAOMybatis implements ItemDAO {
 		return sqlSession.selectList("itemSQL.getSubList", main_codename);
 	}
 
-	@Override
+
 	public List<ItemDTO> wishList(Map<String,String> map) {
 		return sqlSession.selectList("itemSQL.wishList", map);
 	}
 
-	@Override
+
 	public int getWishListCount(String id) {
 		return sqlSession.selectOne("itemSQL.getWishListCount", id);
 	}
 	
 	//itemView
-	@Override
 	public List<String> getColor(int seq) {
 		return sqlSession.selectList("itemSQL.getColor", seq);
 	}
 
-	@Override
 	public List<String> getSize1(Map<String, String> map) {
 		return sqlSession.selectList("itemSQL.getSize1", map);
 	}
 	
-	@Override
+	
 	public List<String> getSize2(Map<String, String> map) {
 		return sqlSession.selectList("itemSQL.getSize2", map);
 	}
 	
-	@Override
 	public ItemDTO getItemDTO(int seq) {
 		return sqlSession.selectOne("itemSQL.getItemDTO", seq);
 	}
 
-	@Override
 	public List<String> checkMain_codename() {
 		return sqlSession.selectList("itemSQL.checkMain_codename");
 	}
 
-	@Override
 	public List<String> checkSub_codename(String main_codename) {
 		return sqlSession.selectList("itemSQL.checkSub_codename", main_codename);
 	}
@@ -86,19 +83,63 @@ public class ItemDAOMybatis implements ItemDAO {
 	}
 	
 	//상품 검색
-	@Override
 	public List<ItemDTO> getRecommendation(String main_codename) {
 		return sqlSession.selectList("itemSQL.getRecommendation", main_codename);
 	}
 
-	@Override
 	public int getSearchFormTotalA(String name) {
 		return sqlSession.selectOne("itemSQL.getSearchFormTotalA", name);
 	}
 
-	@Override
 	public List<ItemDTO> getSearchFormList(Map<String, String> map) {
 		return sqlSession.selectList("itemSQL.getSearchFormList", map);
+	}
+	
+	public void itemDelete(String[] seq) {
+		for(int i=0; i<seq.length; i++){
+			sqlSession.delete("itemSQL.itemDelete",seq[i]);
+		}
+	}
+
+	public List<ItemDTO> itemSearchList(Map<String, String> map) {
+		return sqlSession.selectList("itemSQL.itemSearchList", map);
+	}
+
+	public void itemModify(Item_infoDTO item_infoDTO) {
+		sqlSession.update("itemSQL.itemModify",item_infoDTO);
+	}
+
+	public int getAllTotalA(Map<String, String> map) {
+		return sqlSession.selectOne("itemSQL.getAllTotalA",map);
+	}
+
+	public List<Item_infoDTO> itemDetailList(int seq) {
+		return sqlSession.selectList("itemSQL.itemDetailList", seq);
+	}
+
+	public void item_infoDelete(String[] seq, String[] sub_seq) {
+		for(int i=0; i<sub_seq.length; i++){
+			Map<String,String> map = new HashMap<String,String>();
+			map.put("seq", seq[i]);
+			map.put("sub_seq", sub_seq[i]);
+			sqlSession.delete("itemSQL.item_infoDelete",map);
+		}
+	}
+
+	public void itemAdd(Map<String, String> map) {
+		sqlSession.insert("itemSQL.itemAdd",map);
+	}
+
+	public List<Map<String,String>> getBestImageList(String main_codename) {
+		return sqlSession.selectList("itemSQL.getBestImageList", main_codename);
+	}
+
+	public List<Map<String,String>> getBestInfoList(Map<String, String> map) {
+		return sqlSession.selectList("itemSQL.getBestInfoList", map);
+	}
+
+	public int getBestTotalA(Map<String, String> map) {
+		return sqlSession.selectOne("itemSQL.getBestTotalA",map);
 	}
 
 }

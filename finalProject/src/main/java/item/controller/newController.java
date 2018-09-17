@@ -2,6 +2,7 @@ package item.controller;
 
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -45,6 +46,23 @@ public class newController {
 		ModelAndView mav = new ModelAndView();
 		mav.addObject("list",list);
 		mav.setViewName("jsonView");
+		return mav;
+	}
+	
+	//best
+	@RequestMapping(value="bestIndex",  method=RequestMethod.GET)
+	public String bestIndex(Model model) {
+		model.addAttribute("display", "/new/bestIndex.jsp");
+		return "/main/index";
+	}
+	
+	@RequestMapping(value="getBestImageList", method=RequestMethod.POST)
+	public ModelAndView getBestImageList(@RequestParam String main_codename) {	
+		List<Map<String,String>> list = itemDAO.getBestImageList(main_codename);
+				
+		ModelAndView mav = new ModelAndView();
+		mav.addObject("list",list);
+		mav.setViewName("jsonView");	
 		return mav;
 	}
 	

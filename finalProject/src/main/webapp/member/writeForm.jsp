@@ -139,7 +139,7 @@
 	
 <div id="dialog_frame">
 	<div id="dialog">
-		<i class="material-icons" id="dialog_closeBtn"><img src="../image/close.png" width="50" height="50"></i>
+		<i class="material-icons" id="dialog_closeBtn">clear</i>
 		인증번호가 전송되었습니다
 	</div>		
 </div>	

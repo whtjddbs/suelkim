@@ -35,6 +35,20 @@ public class MainController {
 		return mav;
 	}
 	
+	//마이페이지 메인화면
+	@RequestMapping(value="/myPage/mainPage.do",method=RequestMethod.GET)
+	public String mainPage(Model model) {
+		model.addAttribute("display","/myPage/myPageIndex.jsp");
+		return "/main/index";
+	}
+	
+	//마이페이지 위시리스트
+	@RequestMapping(value="/myPage/mainPage_wishList.do",method=RequestMethod.GET)
+	public String mainPage_wishList(Model model) {
+		model.addAttribute("display", "/myPage/wishList.jsp");
+		return "/main/index";
+	}
+	
 	//찾기 페이지 이동 
 	@RequestMapping(value="/etc/searchForm.do", method=RequestMethod.GET)
 	public String searchForm(Model model) {

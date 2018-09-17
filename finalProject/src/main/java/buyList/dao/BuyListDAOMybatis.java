@@ -29,7 +29,7 @@ public class BuyListDAOMybatis implements BuyListDAO {
 		sqlSession.update("buyListSQL.changeStatus", map);
 	}
 
-	@Override
+	
 	public int getDeliveryTotalA(Map<String, String> map) {
 		return sqlSession.selectOne("buyListSQL.getDeliveryTotalA", map);
 	}

@@ -22,7 +22,7 @@ $(document).ready(function(){
 <body>
 <div id="dialog_frame">
 	<div id="dialog">
-		<i class="material-icons" id="dialog_closeBtn"><img src="../image/close.png" width="50" height="50"></i>
+		<i class="material-icons" id="dialog_closeBtn">clear</i>
 			회원가입을 축하합니다
 	</div>		
 </div>	

@@ -17,6 +17,7 @@ import buyList.bean.BuyListDTO;
 import buyList.bean.DeliveryControllPaging;
 import buyList.bean.SalesMgmtPaging;
 import buyList.dao.BuyListDAO;
+import item.bean.ItemControllPaging;
 import item.dao.ItemDAO;
 import member.bean.MemberDTO;
 import member.dao.MemberDAO;
@@ -30,6 +31,8 @@ public class AdminController {
 	private ItemDAO itemDAO;
 	@Autowired
 	private BuyListDAO buyListDAO;
+	@Autowired
+	private ItemControllPaging paging;
 	
 	
 	@RequestMapping(value="adminIndex", method=RequestMethod.GET)
@@ -51,6 +54,21 @@ public class AdminController {
 	public String refundControll(Model model) {
 		model.addAttribute("display", "/admin/adminIndex.jsp");
 		model.addAttribute("adminBody", "/admin/refundControll.jsp");
+		return "/main/index";
+	}
+	
+	@RequestMapping(value="itemControll", method=RequestMethod.GET)
+	public String itemControll(Model model) {
+		
+		model.addAttribute("display", "/admin/adminIndex.jsp");
+		model.addAttribute("adminBody", "/admin/itemControll.jsp");
+		return "/main/index";
+	}
+	
+	@RequestMapping(value="itemAddForm", method=RequestMethod.GET)
+	public String itemAddForm(Model model) {
+		model.addAttribute("display", "/admin/adminIndex.jsp");
+		model.addAttribute("adminBody", "/admin/itemAddForm.jsp");
 		return "/main/index";
 	}
 	
@@ -125,6 +143,102 @@ public class AdminController {
 		mav.addObject("check", check);
 		mav.setViewName("jsonView");
 		return mav;
+	}
+	
+	@RequestMapping(value="itemDelete",method=RequestMethod.POST)
+	public String itemDelete(@RequestParam String[] seq
+							,@RequestParam(required=false) String[] sub_seq
+							,Model model) {
+		if(sub_seq == null) {
+			itemDAO.itemDelete(seq); //item
+		}else {
+			itemDAO.item_infoDelete(seq,sub_seq);//item_info
+		}
+		
+		model.addAttribute("display", "/admin/adminIndex.jsp");
+		model.addAttribute("adminBody", "/admin/itemControll.jsp");
+		return "/main/index";
+	}
+	
+	@RequestMapping(value="getSubList",method=RequestMethod.POST)
+	public ModelAndView getSubList(@RequestParam String main_codename) {
+		List<String> list = itemDAO.getSubList(main_codename);
+		
+		ModelAndView mav = new ModelAndView();
+		mav.addObject("list",list);
+		mav.setViewName("jsonView");
+		return mav;
+	}
+	
+	@RequestMapping(value="itemSearchList",method=RequestMethod.POST)
+	public ModelAndView itemSearchList(@RequestParam(required=false,defaultValue="1") String pg
+			                          ,@RequestParam Map<String,String> map) {
+		if(map.get("startPrice").equals("")) map.put("startPrice", "0");
+		if(map.get("endPrice").equals("")) map.put("endPrice", "10000000");
+		
+		int endNum=Integer.parseInt(pg)*10;
+		int startNum=endNum-9;
+		
+		map.put("startNum", startNum+"");
+		map.put("endNum", endNum+"");
+		
+		List<ItemDTO> list = itemDAO.itemSearchList(map);
+		int totalA=itemDAO.getAllTotalA(map);
+
+		paging.setCurrentPage(Integer.parseInt(pg));
+		paging.setPageBlock(3);
+		paging.setPageSize(10);
+		paging.setTotalA(totalA);
+		paging.makePagingHTML();
+		
+		
+		ModelAndView mav = new ModelAndView();
+		mav.addObject("list",list);
+		mav.addObject("paging",paging);
+		mav.addObject("pg", pg);
+		mav.setViewName("jsonView");
+		return mav;
+	}
+	
+	@RequestMapping(value="itemDetailList",method=RequestMethod.POST)
+	public ModelAndView itemDetailList(@RequestParam int seq) {
+		List<Item_infoDTO> list = itemDAO.itemDetailList(seq);
+		
+		ModelAndView mav = new ModelAndView();
+		mav.addObject("list",list);
+		mav.setViewName("jsonView");
+		return mav;
+	}
+	
+	@RequestMapping(value="itemAdd",method=RequestMethod.POST)
+	public String itemAdd(@RequestParam Map<String,String> map
+						 ,@RequestParam MultipartFile image1 //@RequestParam MultipartFile[] img -> img[0] ( for문)
+						 ,Model model) {
+		String filePath = "C:\\Users\\pepur\\Documents\\spring\\workspace\\finalProject\\src\\main\\webapp\\storage";
+		String fileName = image1.getOriginalFilename(); 
+		File file = new File(filePath,fileName);
+		
+		try {
+			FileCopyUtils.copy(image1.getInputStream(), new FileOutputStream(file));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		map.put("img", fileName);
+		if(!map.containsKey("size2")) map.put("size2", "");
+		
+		itemDAO.itemAdd(map);
+		
+		model.addAttribute("display", "/admin/adminIndex.jsp");
+		model.addAttribute("adminBody", "/admin/itemAdd.jsp");
+		return "/main/index";
+	}
+	
+	@RequestMapping(value="itemModify",method=RequestMethod.POST)
+	@ResponseBody
+	public String itemModify(@ModelAttribute Item_infoDTO item_infoDTO) {
+		itemDAO.itemModify(item_infoDTO);
+		return "modifyOk";
 	}
 	
 	//매출 관리

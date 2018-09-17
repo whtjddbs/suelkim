@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import item.bean.BestPaging;
 import item.bean.ItemDTO;
 import item.bean.ItemPaging;
 import item.dao.ItemDAO;
@@ -24,6 +25,8 @@ public class ItemController {
 	private ItemDAO itemDAO;
 	@Autowired
 	private ItemPaging itemPaging;
+	@Autowired
+	private BestPaging bestPaging;
 	
 	@RequestMapping(value="newDisplay", method=RequestMethod.GET)
 	public ModelAndView newDisplay(@RequestParam String main_codename,@RequestParam(required=false,defaultValue="1") String pg, HttpSession session) {
@@ -114,6 +117,37 @@ public class ItemController {
 		ModelAndView mav = new ModelAndView();
 		mav.addObject("list", list);
 		mav.setViewName("jsonView");
+		return mav;
+	}
+	
+	@RequestMapping(value="bestDisplay",method=RequestMethod.GET)
+	public ModelAndView bestDisplay(@RequestParam String main_codename,@RequestParam(required=false,defaultValue="1") String pg) {
+		//DB -1페이지당 16개씩
+		int endNum = Integer.parseInt(pg)*16;
+		int startNum = endNum-15;
+		
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("main_codename", main_codename);
+		map.put("startNum", startNum+"");
+		map.put("endNum", endNum+"");
+						
+		List<Map<String,String>> list = itemDAO.getBestInfoList(map);
+		
+		//페이징 처리
+		int totalA = itemDAO.getBestTotalA(map);
+		bestPaging.setCurrentPage(Integer.parseInt(pg));
+		bestPaging.setPageBlock(4);
+		bestPaging.setPageSize(16);
+		bestPaging.setTotalA(totalA);
+		bestPaging.makePagingHTML(main_codename);
+		
+		ModelAndView mav = new ModelAndView();
+		mav.addObject("pg", pg);
+		mav.addObject("list", list);
+		mav.addObject("bestPaging", bestPaging);
+		mav.addObject("display", "/new/bestDisplay.jsp");
+		mav.setViewName("/main/index");
+
 		return mav;
 	}
 }

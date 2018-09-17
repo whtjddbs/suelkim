@@ -71,9 +71,8 @@
 			</ul>
 			<ul class="header_nav">
 				<li>
-					<a href="" class="subMenu2" style="color:#000000; font-size: 20px; text-decoration: none;">BEST</a>
+					<a href="/finalProject/new/bestIndex.do" class="subMenu2" style="color:#000000; font-size: 20px; text-decoration: none;">BEST</a>
 					<a href="" class="subMenu2" style="color:#000000; font-size: 20px; text-decoration: none;">EVENT</a>
-					<a href="" class="subMenu2" style="color:#000000; font-size: 20px; text-decoration: none;">SALE</a>
 				</li>
 			</ul>
 			<c:if test="${param.button != 'jsy' }">

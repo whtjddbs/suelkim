@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="itemSQL">
+ 	<!--  왼쪽 카테고리 가져오기 -->
+ 	<select id="getCategory" resultType="item">
+ 		select distinct main_codename from item
+ 	</select>
+ 	
+ 	<select id="getImageList" parameterType="java.util.Map" resultType="item">
+ 		select * from item 
+ 		where main_codename=#{main_codename} AND rownum &lt;=5 order by seq desc
+ 	</select>
+ 	
+ 	<select id="getItemList" resultType="item">
+		select distinct main_codename from item
+ 	</select>
+ 	
+ 	<select id="getInfoList" parameterType="java.util.Map" resultType="item">
+ 		select * from
+		(select rownum rn, tt.*from
+		(select * from item 
+		where main_codename=#{main_codename} and sub_codename like '%${sub_codename}%'
+		order by seq desc)tt
+		)where rn between ${startNum} and ${endNum}
+ 	</select>
+ 	
+ 	<select id="getTotalA" parameterType="String" resultType="int">
+ 		select count(*)from item where main_codename=#{main_codename} and sub_codename like '%${sub_codename}%'
+ 	</select>
+ 	
+ 	<select id="getAllTotalA" resultType="int">
+  		select count(*) from item
+	 			where main_codename like '%'||#{main_codename}||'%' 
+	 			and sub_codename like '%'||#{sub_codename}||'%'
+	 			and price between #{startPrice} and #{endPrice} 
+	 			and name like '%'||#{name}||'%'
+				order by seq desc
+  	</select>
+  	
+  	<select id="getBestTotalA" parameterType="String" resultType="int">
+  		select count(*) from buylist 
+			join serialmapper using(serial) 
+			join item using(seq) where main_codename=#{main_codename} order by count desc
+  	</select>
+ 	
+ 	<select id="getSubList" parameterType="String" resultType="String">
+ 		select distinct sub_codename from item where main_codename=#{main_codename}
+ 	</select>
+ 	
+ 	<!-- BEST index에 뿌릴 list -->
+ 	<select id="getBestImageList"  parameterType="String" resultType="java.util.Map">
+ 		select * from buylist 
+			join serialmapper using(serial) 
+			join item using(seq) where main_codename=#{main_codename} AND rownum &lt;=5 order by count desc
+ 	</select>
+ 	
+ 	<!-- Best -->
+ 	<select id="getBestInfoList" parameterType="java.util.Map" resultType="java.util.Map">
+ 		select * from
+		(select rownum rn, tt.*from
+		(select * from buylist 
+			join serialmapper using(serial) 
+			join item using(seq) where main_codename=#{main_codename} order by count desc)tt
+		)where rn between ${startNum} and ${endNum}
+ 	</select>
+ 	
+ 	
+ 	<!-- 아이템 삭제 -->
+	<delete id="itemDelete" parameterType="String">
+		delete item where seq=#{seq}
+	</delete>
+	
+ 	<!-- 검색 아이템 가져오기 -->
+ 	<select id="itemSearchList" parameterType="java.util.Map" resultType="item">
+		 select * from (  
+			select rownum rn, tt.* from( 
+			select * from item
+	 			where main_codename like '%'||#{main_codename}||'%' 
+	 			and sub_codename like '%'||#{sub_codename}||'%'
+	 			and price between #{startPrice} and #{endPrice} 
+	 			and name like '%'||#{name}||'%'
+				order by seq desc )tt  
+			  )where rn between ${startNum} and ${endNum} 
+ 	</select>
+ 	
+ 	<!-- 아이템 상세설명 -->
+ 	<select id="itemDetailList" parameterType="int" resultType="item_info">
+ 		select * from item_info where seq=#{seq} order by color asc, size1 asc, size2 asc
+ 	</select>
+ 	
+ 	<!-- 아이템 수정 -->
+ 	<update id="itemModify" parameterType="item_info">
+ 		update item_info set color=#{color}
+ 					   		,size1=#{size1}
+ 					  		,size2=#{size2} 
+ 					   		,qty=#{qty} where seq=#{seq} and sub_seq=#{sub_seq}
+ 	</update>
+ 	
+ 	<!-- 상세 아이템 보기 안에 있는 선택삭제 -->
+ 	<delete id="item_infoDelete" parameterType="String">
+		delete item where seq=#{seq} and sub_seq=#{sub_seq}
+	</delete>
+	
+	
+	<!-- 아이템 등록 -->
+	<insert id="itemAdd" parameterType="java.util.Map">
+	begin
+		insert into item values(item_seq.nextval
+							   ,#{name}
+							   ,#{price}
+							   ,#{main_codename}
+							   ,#{sub_codename}
+							   ,#{img}
+							   ,0);
+							   
+		insert into item_info values(item_seq.currval
+		                            ,item_info_seq.nextval
+		                            ,#{color}
+		                            ,#{size1}
+		                            ,#{size2}
+		                            ,#{qty});
+		
+	end; 
+	</insert>
+ </mapper>
